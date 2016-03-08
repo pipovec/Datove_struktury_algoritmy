@@ -2,13 +2,20 @@
 #define STACK_H
 
 
-class stack
+class Stack
 {
     public:
-        stack();
-        virtual ~stack();
+        Stack();
+        bool IsEmpty() const;
+        bool IsFull() const;
+        void Push(int n);
+        void Pop();
+        int Top() const;
+        ~Stack();
+        
     protected:
     private:
+    	NodeType * top;
 };
 
 #endif // STACK_H

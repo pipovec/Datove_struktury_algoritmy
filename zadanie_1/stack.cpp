@@ -1,11 +1,15 @@
 #include "stack.h"
 
-stack::stack()
+
+bool Stack::IsEmpty() const
 {
-    //ctor
+	return (top == -1);
 }
 
-stack::~stack()
+bool Stack::IsFull() const 
 {
-    //dtor
+  return (top == max_depth-1);
 }
+
+
+
