@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-/*#include "stack.cpp"
+#include "stack.h"
 
 /* Trieda na pracu s volbou New */
 class ChoseNew{

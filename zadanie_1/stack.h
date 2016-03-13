@@ -1,20 +1,32 @@
 #ifndef STACK_H
 #define STACK_H
 
+struct NodeType;
+typedef NodeType* NodePtr;
 
-class Stack
+
+struct NodeType
+{
+	int       data;
+	NodePtr   next;
+};
+
+class IntStack
 {
     public:
-        Stack();
+        
         bool IsEmpty() const;
-        bool IsFull() const;
+        //bool IsFull() const;
         void Push(int n);
         void Pop();
         int Top() const;
-        ~Stack();
+        ~IntStack();
+        IntStack(const IntStack& otherStk);
+        IntStack();
         
-    protected:
+    
     private:
+
     	NodeType * top;
 };
 

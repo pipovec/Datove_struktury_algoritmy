@@ -1,15 +1,52 @@
 #include "stack.h"
+#include "stddef.h"
+//#include <alloc.h>
 
 
-bool Stack::IsEmpty() const
+IntStack::IntStack()
 {
-	return (top == -1);
+	top = NULL;
 }
 
-bool Stack::IsFull() const 
+bool IntStack::IsEmpty() const
 {
-  return (top == max_depth-1);
+	return (top == NULL);
 }
 
+/*bool IntStack::IsFull() const 
+{
+  return (coreleft () < sizeof(NodeType));
+}
+*/
+void IntStack::Push(int newItem)
+{
+	NodePtr newPtr = new NodeType;
+	newPtr->data = newItem;
+	newPtr->next = top;
+	top = newPtr;
+}
 
+int IntStack::Top() const
+{
+	return top->data;
+}
 
+void IntStack::Pop()
+{
+	NodeType* tempPtr = top;
+	top = top->next;
+	delete tempPtr;
+}
+
+IntStack::~IntStack()
+{
+	// Destructor
+
+	NodeType * tempPtr;
+	while(top != NULL)
+	{
+		tempPtr = top;
+		top = top->next;
+		delete tempPtr;
+	}
+}
