@@ -8,15 +8,14 @@
 class ChoseNew{
 
 	public:
-
-		std::fstream file;
+        std::fstream file;
 
 		int SetNewData()
 		{
 			int PZ,PP,dINT,hINT;
-			int i = 0;
 
-			OpenFileW();
+			// Otvorim subor a vymazem stare data
+			file.open("game.txt",std::fstream::out | std::fstream::trunc);
 
 			std::cout << "Zadajte pocet zivotov hracov: ";
 			std::cin >> PZ ;
@@ -34,7 +33,8 @@ class ChoseNew{
 			std::cin >> hINT;
 			WritePara(hINT);
 
-			CloseFile();
+
+			file.close();
 			return 0;
 		}
 
@@ -76,21 +76,18 @@ class ChoseNew{
 			std::string i;
 			int PP;
 
-			std::fstream file;
-
 			file.open("game.txt", std::fstream::in); // Otvorim len na citanie;
 
-			std::getline (file, i, ';');// Vynecham lebo je to pocet zivotov
+            std::getline (file, i, ';');// Vynecham lebo je to pocet zivotov
 			std::getline (file, i, ';');// Toto je pocet prvkov
 
-			file.close();
-
 			PP = std::stoi(i);
+
+			CloseFile();
 
 			return PP;
 
 		}
-
 
 		void WritePara(int para)
 		{
@@ -100,11 +97,6 @@ class ChoseNew{
 		void WriteSemi()
 		{
 			file << ";" ;
-		}
-
-		void OpenFileW()
-		{
-			file.open("game.txt",std::fstream::out | std::fstream::trunc);
 		}
 
 		void CloseFile()
@@ -119,26 +111,25 @@ class Hrac
 	public:
 		void NacitajParametre()
 		{
+            using namespace std;
 
-			int PZ,PP,dINT,hINT;
-			std::string value;
+			string value;
 
-			std::fstream file;
+			ifstream file;
 
 			file.open("game.txt");
 
+			getline(file,value,';');
+			cout << "Parametre hry: PZ=" <<  value;
 
 			getline(file,value,';');
-			std::cout << "Parametre hry: PZ=" <<  value;
+			cout << ",PP=" <<  value;
 
 			getline(file,value,';');
-			std::cout << ",PP=" <<  value;
+			cout << ",<"<<  value;
 
-			getline(file,value,';');
-			std::cout << ",<"<<  value;
-
-			getline(file,value,';');
-			std::cout << "," <<  value << ">" << std::endl;
+			getline(file,value,'\n');
+			cout << "," <<  value << ">" << endl;
 
 			file.close();
 
@@ -174,15 +165,52 @@ int main()
 {
 
     using namespace std;
-   	ChoseNew New;
+
+    string Volba;
+
+    ChoseNew New;
    	ClearScreen CS;
-   	Hrac Hrac;
-   	IntStack Hrac1;
-   	IntStack Hrac2;
+    Hrac Hrac;
+   	//IntStack Hrac1;
+   	//IntStack Hrac2;
 
-    New.SetNewData();
+    cout << "Zadaj tvoju volbu (New, Load, Exit): ";
+    cin >> Volba;
+    CS.clear_screen();
 
-    New.SetNewPlayer();
+
+    if (Volba == "New")
+    {
+        cout << "Vybral si si New" << endl;
+        New.SetNewData(); // Zadavanie novych parametrov hry
+        CS.clear_screen();
+
+        cout << "Zadanie udajov hraca c.1" << endl;
+        Hrac.NacitajParametre();
+        New.SetNewPlayer();
+
+        CS.clear_screen();
+
+        cout << "Zadanie udajov hraca c.2" << endl;
+        Hrac.NacitajParametre();
+        New.SetNewPlayer();
+
+
+    }
+    else if (Volba  == "Load")
+    {
+        cout << "Vybral si si Load" << endl;
+    }
+    else if (Volba  == "Exit")
+    {
+        cout << "Vybral si si Exit" << endl;
+    }
+
+
+
+
+
+    //New.SetNewPlayer();
 
     return 0;
 }
