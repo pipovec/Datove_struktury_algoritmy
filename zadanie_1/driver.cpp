@@ -38,11 +38,65 @@ class ChoseNew{
 			return 0;
 		}
 
+        int KontrolaVolby(std::string Volba)
+        {
+            /* Kontrola ci je volba spravne zadana */
+            int result = 0;
+
+            if
+            (Volba == "New"){result = 1;}
+            else if
+            (Volba == "Load"){result = 1;}
+            else if
+            (Volba == "Exit"){result = 1;}
+
+            return result;
+        }
+
+        int KontrolaIntervalu(std::string interval)
+        {
+            int result = 0;
+            int dINT, hINT, INT;
+            using namespace std;
+            string value;
+			ifstream file;
+
+            /* Nacitanie intervalov zo suboru */
+			file.open("game.txt");
+
+			getline(file,value,';');
+			getline(file,value,';');
+
+
+			getline(file,value,';');
+			dINT = stoi(value);
+
+			getline(file,value,'\n');
+			hINT = stoi(value);
+
+			file.close();
+
+            INT = stoi(interval);
+
+            /* Kontrola ci je cislo v intervale */
+			if( INT >= dINT && INT <= hINT )
+			{
+                result = 1;
+			}
+			else
+			{
+                cout << "Cislo je mimo intervalu, zadaj znova" << endl;
+                result = 0;
+			}
+
+            return result;
+        }
+
 		void SetNewPlayer()
 		{
-			std::string Meno;
-			int i,PP,value;
-
+			std::string Meno ,value;
+			int i,PP, control;
+            control = 0;
 
 			// Nacitanie kolko prvkov sa bude hadat
 			PP = PocetPrvkov();
@@ -55,12 +109,21 @@ class ChoseNew{
 			std::cin >> Meno;
 			file << "\n" << Meno << ";";
 
-
+            /* Zadavanie prvkov do suboru a kontrola intervalu */
 			for(i = 0; i < PP; i++)
 			{
-                std::cout << "Zadaj prvok c." << i+1 << ":";
-                std::cin >> value;
-                file << value ; // Osetrit tak aby som nevysiel z definovaneho intervalu.
+
+                do
+                {
+                    std::cout << "Zadaj prvok c." << i+1 << ":";
+                    std::cin >> value;
+                    control = KontrolaIntervalu(value);
+                }
+                while(control == 0);
+
+                /* Ak je v poriadku zapis ho */
+                 file << value ;
+
                 if(i < PP) file << ";";
 			}
 
@@ -167,6 +230,7 @@ int main()
     using namespace std;
 
     string Volba;
+    int ControlChoice;
 
     ChoseNew New;
    	ClearScreen CS;
@@ -174,14 +238,20 @@ int main()
    	//IntStack Hrac1;
    	//IntStack Hrac2;
 
-    cout << "Zadaj tvoju volbu (New, Load, Exit): ";
-    cin >> Volba;
+    do
+    {
+        cout << "Zadaj tvoju volbu (New, Load, Exit): ";
+        cin >> Volba;
+        ControlChoice = New.KontrolaVolby(Volba);
+    }
+    while(ControlChoice == 0);
+
     CS.clear_screen();
 
 
     if (Volba == "New")
     {
-        cout << "Vybral si si New" << endl;
+
         New.SetNewData(); // Zadavanie novych parametrov hry
         CS.clear_screen();
 
