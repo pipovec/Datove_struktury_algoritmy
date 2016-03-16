@@ -174,6 +174,8 @@ class Hrac
 	public:
 		void NacitajParametre()
 		{
+            // Nacitaj zakladne parametre zo suboru a zobraz na obrazovke
+
             using namespace std;
 
 			string value;
@@ -198,7 +200,69 @@ class Hrac
 
 		}
 
+        int KolkoPP()
+        {
+            int pp;
+            pp = KolkoStackov();
+            return pp;
+        }
 
+        int KolkoPZ()
+        {
+            /* kolko zivotov */
+            int pz;
+            pz = KolkoZivota();
+
+            return pz;
+        }
+
+        void NaplnZivoty(int pz, IntStack* PZ)
+        {
+            int i;
+
+            for( i = 1 ; i < pz + 1 ; i++)
+            {
+                PZ->Push(i);
+            }
+        }
+
+
+    private:
+        int KolkoZivota()
+        {
+            using namespace std;
+
+			string value;
+			ifstream file;
+
+			int result;
+
+			file.open("game.txt");
+            getline(file,value,';');
+            result = stoi(value);
+            file.close();
+
+            return result;
+
+        }
+
+        int KolkoStackov()
+        {
+            using namespace std;
+
+			string value;
+			ifstream file;
+
+			int result;
+
+			file.open("game.txt");
+            getline(file,value,';');
+            getline(file,value,';');
+            result = stoi(value);
+            file.close();
+
+            return result;
+        }
 
 };
 
@@ -235,8 +299,20 @@ int main()
     ChoseNew New;
    	ClearScreen CS;
     Hrac Hrac;
-   	//IntStack Hrac1;
-   	//IntStack Hrac2;
+
+   	IntStack PZ1; // Pocet zivotov hraca cislo 1
+   	IntStack PP1; // Stack hraca cislo 1
+   	IntStack PZ2;
+   	IntStack PP2;
+
+    IntStack *ptr_PZ1;
+    ptr_PZ1 = &PZ1;
+    IntStack *ptr_PZ2;
+    ptr_PZ2 = &PZ2;
+    IntStack *ptr_PP1;
+    ptr_PP1 = &PP1;
+    IntStack *ptr_PP2;
+    ptr_PP1 = &PP1;
 
     do
     {
@@ -248,11 +324,13 @@ int main()
 
     CS.clear_screen();
 
-
+ /*
     if (Volba == "New")
     {
 
-        New.SetNewData(); // Zadavanie novych parametrov hry
+        // Zadavanie novych parametrov hry
+
+        New.SetNewData();
         CS.clear_screen();
 
         cout << "Zadanie udajov hraca c.1" << endl;
@@ -264,6 +342,25 @@ int main()
         cout << "Zadanie udajov hraca c.2" << endl;
         Hrac.NacitajParametre();
         New.SetNewPlayer();
+*/
+
+        /* Naplnenie udajov do stackov zo suboru*/
+        int pz; /* Pocet zivotov */
+        pz = Hrac.KolkoPZ();
+
+        /* Napln Hrac 1 */
+        Hrac.NaplnZivoty(pz, ptr_PZ1);
+
+        /* Napln Hrac 2 */
+        Hrac.NaplnZivoty(pz, ptr_PZ2);
+
+
+        cout << "Hrac 1: " << PZ1.Top() << " Hrac 2: " << PZ2.Top() << endl;
+
+
+
+
+/*
 
 
     }
@@ -275,7 +372,7 @@ int main()
     {
         cout << "Vybral si si Exit" << endl;
     }
-
+*/
 
 
 

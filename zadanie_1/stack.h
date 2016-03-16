@@ -14,17 +14,17 @@ struct NodeType
 class IntStack
 {
     public:
-        
+
         bool IsEmpty() const;
         //bool IsFull() const;
         void Push(int n);
         void Pop();
         int Top() const;
         ~IntStack();
-        IntStack(const IntStack& otherStk);
+        //IntStack(const IntStack& otherStk);
         IntStack();
-        
-    
+
+
     private:
 
     	NodeType * top;
