@@ -21,7 +21,7 @@ class IntStack
         void Pop();
         int Top() const;
         ~IntStack();
-        //IntStack(const IntStack& otherStk);
+        IntStack(const IntStack& otherStk);
         IntStack();
 
 

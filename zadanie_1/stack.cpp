@@ -1,7 +1,5 @@
 #include "stack.h"
 #include "stddef.h"
-//#include <alloc.h>
-
 
 IntStack::IntStack()
 {
@@ -13,11 +11,6 @@ bool IntStack::IsEmpty() const
 	return (top == NULL);
 }
 
-/*bool IntStack::IsFull() const 
-{
-  return (coreleft () < sizeof(NodeType));
-}
-*/
 void IntStack::Push(int newItem)
 {
 	NodePtr newPtr = new NodeType;
@@ -26,11 +19,14 @@ void IntStack::Push(int newItem)
 	top = newPtr;
 }
 
+// Vrati hodnotu vechneho prvku
 int IntStack::Top() const
 {
-	return top->data;
+    //std::cout << top->data << top->next;
+    return top->data;
 }
 
+// Odobratie vrachneho prvku
 void IntStack::Pop()
 {
 	NodeType* tempPtr = top;

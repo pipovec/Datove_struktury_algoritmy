@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
-#include "stack.cpp"
+#include <stack.cpp>
 
 /* Trieda na pracu s volbou New */
 class ChoseNew{
@@ -95,12 +95,12 @@ class ChoseNew{
 		void SetNewPlayer()
 		{
 			std::string Meno ,value;
-			int i,PP, control;
+			int i, PP, PZ, control;
             control = 0;
 
 			// Nacitanie kolko prvkov sa bude hadat
 			PP = PocetPrvkov();
-
+            PZ = PocetZivotov();
             // Otvrorenie suboru na pridanie riadku
             std::fstream file;
             file.open("game.txt", std::fstream::out | std::fstream::app);
@@ -108,6 +108,9 @@ class ChoseNew{
             std::cout << "Zadaj svoje meno: ";
 			std::cin >> Meno;
 			file << "\n" << Meno << ";";
+
+            /* Zadanie zivotov */
+            file << PZ << ";";
 
             /* Zadavanie prvkov do suboru a kontrola intervalu */
 			for(i = 0; i < PP; i++)
@@ -124,7 +127,7 @@ class ChoseNew{
                 /* Ak je v poriadku zapis ho */
                  file << value ;
 
-                if(i < PP) file << ";";
+                if(i < PP - 1) file << ";";
 			}
 
             file.close();
@@ -151,6 +154,24 @@ class ChoseNew{
 			return PP;
 
 		}
+
+		int PocetZivotov()
+        {
+            using namespace std;
+
+			string value;
+			ifstream file;
+
+			int result;
+
+			file.open("game.txt");
+            getline(file,value,';');
+            result = stoi(value);
+            file.close();
+
+            return result;
+
+        }
 
 		void WritePara(int para)
 		{
@@ -200,6 +221,37 @@ class Hrac
 
 		}
 
+        int NaplnStack(int hrac, IntStack* PP)
+        {
+            using namespace std;
+            /* Naplnenie stackov zo suboru. Hrac ocakava int ako poradie hrac */
+            ifstream file;
+            string value;
+            int i,c,prvok;
+            file.open("game.txt");
+
+            getline(file,value); /* Preskoc prvy riadok s parametrami*/
+
+            if(hrac == 2){getline(file,value);} /* Preskoc druhy riadok s prvym hracom */
+
+            getline(file,value,';'); /* Preskoc meno hraca */
+            getline(file,value,';'); /* Preskoc zivot hraca */
+
+            i = KolkoStackov();
+
+            for(c = 0; c < i; c++)
+            {
+                getline(file,value,';');
+                prvok = stoi(value);
+                PP->Push(prvok);
+            }
+
+            file.close();
+
+            return i;
+
+        }
+
         int KolkoPP()
         {
             int pp;
@@ -226,6 +278,24 @@ class Hrac
             }
         }
 
+        std::string MenoHraca(int hrac)
+        {
+            using namespace std;
+            ifstream file;
+            string value;
+            file.open("game.txt");
+
+            getline(file,value); /* Preskoc prvy riadok s parametrami*/
+
+            if(hrac == 2){getline(file,value);}
+            getline(file,value,';'); // Meno hraca
+
+            file.close();
+            return value;
+
+            file.close();
+
+        }
 
     private:
         int KolkoZivota()
@@ -293,7 +363,7 @@ int main()
 
     using namespace std;
 
-    string Volba;
+    string Volba, meno;
     int ControlChoice;
 
     ChoseNew New;
@@ -312,7 +382,7 @@ int main()
     IntStack *ptr_PP1;
     ptr_PP1 = &PP1;
     IntStack *ptr_PP2;
-    ptr_PP1 = &PP1;
+    ptr_PP2 = &PP2;
 
     do
     {
@@ -324,13 +394,13 @@ int main()
 
     CS.clear_screen();
 
- /*
+
     if (Volba == "New")
     {
 
         // Zadavanie novych parametrov hry
 
-        New.SetNewData();
+      /*  New.SetNewData();
         CS.clear_screen();
 
         cout << "Zadanie udajov hraca c.1" << endl;
@@ -344,30 +414,91 @@ int main()
         New.SetNewPlayer();
 */
 
-        /* Naplnenie udajov do stackov zo suboru*/
+
+
+        /* Naplnenie udajov do stackov zo suboru - zivoty*/
         int pz; /* Pocet zivotov */
         pz = Hrac.KolkoPZ();
 
-        /* Napln Hrac 1 */
+        /* Napln zivot Hrac 1 */
         Hrac.NaplnZivoty(pz, ptr_PZ1);
-
-        /* Napln Hrac 2 */
+        /* Napln zivot Hrac 2 */
         Hrac.NaplnZivoty(pz, ptr_PZ2);
 
+        /* Naplnenie udajov do stackov zo suboru  - prvky*/
 
-        cout << "Hrac 1: " << PZ1.Top() << " Hrac 2: " << PZ2.Top() << endl;
+        /* Napln stack Hrac 1 */
+        Hrac.NaplnStack(1, ptr_PP1);
+
+        /* Napln stack Hrac 2*/
+        Hrac.NaplnStack(2, ptr_PP2);
 
 
 
-
-/*
-
+        /* Napln stack Hrac 2*/
+       // Hrac.NaplnStack(2, ptr_PP2);
+        //cout << " Hrac 2: " << PP2.Top() << endl;
 
     }
+
+
     else if (Volba  == "Load")
     {
-        cout << "Vybral si si Load" << endl;
+
+        int koniec, hrac, count_p1, count_p2, data, pz;
+        string pokus;
+
+        pz = Hrac.KolkoPZ();
+
+        /* Napln zivot Hrac 1 */
+        Hrac.NaplnZivoty(pz, ptr_PZ1);
+        /* Napln zivot Hrac 2 */
+        Hrac.NaplnZivoty(6, ptr_PZ2); // Tu je to zle ak maju rozdielne zivoty
+
+        /* Napln a zrataj stack Hrac 1 */
+        count_p1 = Hrac.NaplnStack(1, ptr_PP1);
+
+        /* Napln a zrataj stack Hrac 2*/
+        count_p2 = Hrac.NaplnStack(2, ptr_PP2);
+
+        // Hra
+
+
+
+        koniec = 0; hrac = 1;
+        while(koniec == 0)
+        {
+
+            meno = Hrac.MenoHraca(hrac);
+            cout << "Hada hrac c." << hrac << " - " << meno << endl;
+            cout << "PZ_ME=";if(hrac == 1){cout << PZ1.Top();} else if (cout << PZ2.Top());
+            cout << " PZ_OPP="; if(hrac == 1){ cout << PZ2.Top();}else if (cout << PZ1.Top()); cout << endl;
+            cout << "PP_ME=";if(hrac == 1){cout << count_p1;} else if (cout << count_p2);
+            cout << " PP_OPP=";if(hrac == 2){cout << count_p2;} else if (cout << count_p1); cout << endl;
+
+            // Hadanie
+            pz = 0;
+            do
+            {
+                cout << "Hadajte prvok na vrchu protivnikovho zasobnika: ";
+                cin >> pokus;
+                // Kontrola intervalu
+                pz = New.KontrolaIntervalu(pokus);
+            }
+            while(pz == 0);
+
+            data = stoi(pokus);
+
+
+
+            koniec = 1;
+
+        }
+
+
+
     }
+/*
     else if (Volba  == "Exit")
     {
         cout << "Vybral si si Exit" << endl;
