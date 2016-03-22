@@ -92,7 +92,7 @@ class ChoseNew{
             return result;
         }
 
-		void SetNewPlayer()
+        void SetNewPlayer()
 		{
 			std::string Meno ,value;
 			int i, PP, PZ, control;
@@ -210,7 +210,6 @@ class Hrac
 
 			getline(file,value,';');
 			cout << ",PP=" <<  value;
-
 			getline(file,value,';');
 			cout << ",<"<<  value;
 
@@ -297,6 +296,47 @@ class Hrac
 
         }
 
+        void VyhodnotTah(int data, int hra, int *ptr_count, IntStack *ptr_PP, IntStack *ptr_PZ)
+        {
+            using namespace std;
+            int pz;
+
+            if(data != ptr_PP->Top())
+            {
+                // Neuhadol
+                pz = ptr_PZ->Top();
+
+                // Skontroluj pocet zivotov
+                if(pz == 1){cout << "Koniec hry dosli ti zivoty" << endl; _Exit(0);}
+
+                cout <<  "Neuhadli ste" << endl; ptr_PZ->Pop();
+
+            }
+            else
+            {
+                int pz; // aktualny pocet zivotov
+
+                if(hra == 1) // Ak je prva hra pridaj zivot navyse
+                {
+                    pz = ptr_PZ->Top(); // zisti aktualny pocet zivotov
+                    ptr_PZ->Push(pz + 1);
+                }
+
+                // Ak uhadol pridaj zivot
+                pz = ptr_PZ->Top(); // zisti aktualny pocet zivotov
+                ptr_PZ->Push(pz + 1);
+
+                // Odober pritohracovi prvok
+                ptr_PP->Pop();
+
+                // Odrataj mu prvky
+                if(*ptr_count == 1){cout << "Vyhral si, uhadol si vsetky prvky, koniec hry" << endl; _Exit(0);}
+                *ptr_count = *ptr_count - 1;
+                cout << "Lucky hit!" << endl;
+            }
+
+        }
+
     private:
         int KolkoZivota()
         {
@@ -357,6 +397,16 @@ class ClearScreen
 		}
 
 };
+
+// Funkcia na stlacenie ENTER // 2 hodiny zabite s picovinou
+void WaitForEnter()
+{
+    char enter;
+    enter = std::cin.get();
+    std::cin.ignore();
+}
+
+
 
 int main()
 {
@@ -435,35 +485,36 @@ int main()
 
 
 
-        /* Napln stack Hrac 2*/
-       // Hrac.NaplnStack(2, ptr_PP2);
-        //cout << " Hrac 2: " << PP2.Top() << endl;
-
     }
 
 
     else if (Volba  == "Load")
     {
 
-        int koniec, hrac, count_p1, count_p2, data, pz;
+        int koniec, hrac, count_p1, count_p2, data, pz, hra;
         string pokus;
+        hra = 1; // Indikuje prve kolo
+        int *ptr_count_p1;
+        int *ptr_count_p2;
+
+        ptr_count_p1 = &count_p1;
+        ptr_count_p2 = &count_p2;
 
         pz = Hrac.KolkoPZ();
 
         /* Napln zivot Hrac 1 */
         Hrac.NaplnZivoty(pz, ptr_PZ1);
+
         /* Napln zivot Hrac 2 */
-        Hrac.NaplnZivoty(6, ptr_PZ2); // Tu je to zle ak maju rozdielne zivoty
+        Hrac.NaplnZivoty(pz, ptr_PZ2); // Tu je to zle ak maju rozdielne zivoty
 
         /* Napln a zrataj stack Hrac 1 */
-        count_p1 = Hrac.NaplnStack(1, ptr_PP1);
+        *ptr_count_p1 = Hrac.NaplnStack(1, ptr_PP1);
 
         /* Napln a zrataj stack Hrac 2*/
-        count_p2 = Hrac.NaplnStack(2, ptr_PP2);
+        *ptr_count_p2 = Hrac.NaplnStack(2, ptr_PP2);
 
         // Hra
-
-
 
         koniec = 0; hrac = 1;
         while(koniec == 0)
@@ -474,7 +525,7 @@ int main()
             cout << "PZ_ME=";if(hrac == 1){cout << PZ1.Top();} else if (cout << PZ2.Top());
             cout << " PZ_OPP="; if(hrac == 1){ cout << PZ2.Top();}else if (cout << PZ1.Top()); cout << endl;
             cout << "PP_ME=";if(hrac == 1){cout << count_p1;} else if (cout << count_p2);
-            cout << " PP_OPP=";if(hrac == 2){cout << count_p2;} else if (cout << count_p1); cout << endl;
+            cout << " PP_OPP=";if(hrac == 1){cout << count_p2;} else if (cout << count_p1); cout << endl;
 
             // Hadanie
             pz = 0;
@@ -489,26 +540,56 @@ int main()
 
             data = stoi(pokus);
 
+            // Vyhodnotenie tipu
+            if(hrac == 1)
+                {
+                   Hrac.VyhodnotTah(data,hra,ptr_count_p2,ptr_PP2,ptr_PZ1);
+                }
+
+            if(hrac == 2)
+                {
+                    Hrac.VyhodnotTah(data,hra,ptr_count_p1,ptr_PP1,ptr_PZ2);
+                    if(hra = 1){hra = 0;} // Ukonci prve kolo
+
+                }
+
+            // Zobrazenie stavu po hadani
+            cout << "PZ_ME=";if(hrac == 1){cout << PZ1.Top();} else if (cout << PZ2.Top());
+            cout << " PZ_OPP="; if(hrac == 1){ cout << PZ2.Top();}else if (cout << PZ1.Top()); cout << endl;
+            cout << "PP_ME=";if(hrac == 1){cout << count_p1;} else if (cout << count_p2);
+            cout << " PP_OPP=";if(hrac == 1){cout << count_p2;} else if (cout << count_p1); cout << endl;
+
+            // Cakaj na ENTER
+            cout << "Stlacte enter a prenechajte hru hracovi c.: " ;
+            if(hrac == 1){cout << "2";} else{cout << "1";}
+
+            WaitForEnter();
+
+            // Vymaz obrazovku
+            CS.clear_screen();
 
 
-            koniec = 1;
+            // Prehod hracov
+            switch(hrac)
+            {
+                case 2: hrac = 1; break;
+                case 1: hrac = 2; break;
+            }
+
 
         }
 
 
 
     }
-/*
+
     else if (Volba  == "Exit")
     {
         cout << "Vybral si si Exit" << endl;
+        return 0;
     }
-*/
 
 
-
-
-    //New.SetNewPlayer();
 
     return 0;
 }
