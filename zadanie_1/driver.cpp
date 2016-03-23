@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
-#include <stack.cpp>
+#include "stack.cpp"
 
 /* Trieda na pracu s volbou New */
 class ChoseNew{
@@ -10,32 +10,33 @@ class ChoseNew{
 	public:
         std::fstream file;
 
-		int SetNewData()
+		/* Nastav parametre hry */
+		void SetNewData(/* pocet zivotov*/ int *pz, /* prvky*/ int *pp, /* interval */ int* dInt, int *hInt)
 		{
-			int PZ,PP,dINT,hINT;
+            using namespace std;
+            string temp;
 
-			// Otvorim subor a vymazem stare data
-			file.open("game.txt",std::fstream::out | std::fstream::trunc);
-
-			std::cout << "Zadajte pocet zivotov hracov: ";
-			std::cin >> PZ ;
-			WritePara(PZ);WriteSemi();
-
-			std::cout << "Zadajte pocet prvkov hracov: " ;
-			std::cin >> PP ;
-			WritePara(PP);WriteSemi();
-
-			std::cout << "Zadajte zaciatok uzavreteho intervalu prvkov: " ;
-			std::cin >> dINT;
-			WritePara(dINT);WriteSemi();
-
-			std::cout << "Zadajte koniec uzavreteho intervalu prvkov: " ;
-			std::cin >> hINT;
-			WritePara(hINT);
+            cout << "Zadajte pocet zivotov hracov: " ;
+            cin >> temp;
+            *pz = stoi(temp);
 
 
-			file.close();
-			return 0;
+            cout << "Zadajte pocet prvkov hracov: " ;
+            cin >> temp;
+            *pp = stoi(temp);
+
+
+            cout << "Zadajte zaciatok uzavreteho intervalu prvkov: " ;
+            cin >> temp;
+            *dInt = stoi(temp);
+
+
+            cout << "Zadajte koniec uzavreteho intervalu prvkov: " ;
+            cin >> temp;
+            *hInt = stoi(temp);
+
+
+
 		}
 
         int KontrolaVolby(std::string Volba)
@@ -53,8 +54,8 @@ class ChoseNew{
             return result;
         }
 
-        int KontrolaIntervalu(std::string interval)
-        {
+        int KontrolaIntervalu(std::string interval) // Cita zo suboru
+         {
             int result = 0;
             int dINT, hINT, INT;
             using namespace std;
@@ -92,101 +93,91 @@ class ChoseNew{
             return result;
         }
 
-        void SetNewPlayer()
+        void SetNewPlayer(/* pocet zivotov*/ int *pz, /* prvky*/ int *pp, /* interval */ int* dInt, int *hInt, IntStack *PZ, IntStack *PP, std::string *name,  int hrac)
 		{
-			std::string Meno ,value;
-			int i, PP, PZ, control;
-            control = 0;
+			using namespace std;
 
-			// Nacitanie kolko prvkov sa bude hadat
-			PP = PocetPrvkov();
-            PZ = PocetZivotov();
-            // Otvrorenie suboru na pridanie riadku
-            std::fstream file;
-            file.open("game.txt", std::fstream::out | std::fstream::app);
+			cout << "Nacitavanie udajov hraca c." << hrac << endl;
+			cout << "Parametre hry: PZ=" << *pz << ",PP=" << *pp << ",<" << *dInt << "," << *hInt << ">" << endl;
 
-            std::cout << "Zadaj svoje meno: ";
-			std::cin >> Meno;
-			file << "\n" << Meno << ";";
+			cout << "Zadajte svoje meno: "; cin >> *name;
+            NaplnPrvky(pp, PP, dInt, hInt);
 
-            /* Zadanie zivotov */
-            file << PZ << ";";
 
-            /* Zadavanie prvkov do suboru a kontrola intervalu */
-			for(i = 0; i < PP; i++)
+			NaplnZivoty(pz, PZ); // Bez vystupu, iba naplni stack so zivotmi
+
+
+		}
+
+        int SkontrolujInterval(std::string value, int* dInt, int *hInt) // Z klavesnice, pre vlastnu blbost to tu musim mat dvakrat
+        {
+            int i, result;
+            i = std::stoi(value);
+
+             /* Kontrola ci je cislo v intervale */
+			if( i >= *dInt && i <= *hInt )
 			{
-
-                do
-                {
-                    std::cout << "Zadaj prvok c." << i+1 << ":";
-                    std::cin >> value;
-                    control = KontrolaIntervalu(value);
-                }
-                while(control == 0);
-
-                /* Ak je v poriadku zapis ho */
-                 file << value ;
-
-                if(i < PP - 1) file << ";";
+                result = 1;
+			}
+			else
+			{
+                std::cout << "Cislo je mimo intervalu, zadaj znova" << std::endl;
+                result = 0;
 			}
 
-            file.close();
-
-
-		}
-
-	private:
-		int PocetPrvkov()
-		{
-			// Zisti pocet prvkov v hre zo suboru
-			std::string i;
-			int PP;
-
-			file.open("game.txt", std::fstream::in); // Otvorim len na citanie;
-
-            std::getline (file, i, ';');// Vynecham lebo je to pocet zivotov
-			std::getline (file, i, ';');// Toto je pocet prvkov
-
-			PP = std::stoi(i);
-
-			CloseFile();
-
-			return PP;
-
-		}
-
-		int PocetZivotov()
-        {
-            using namespace std;
-
-			string value;
-			ifstream file;
-
-			int result;
-
-			file.open("game.txt");
-            getline(file,value,';');
-            result = stoi(value);
-            file.close();
-
-            return result;
+			return result;
 
         }
 
-		void WritePara(int para)
-		{
-			file << para;
-		}
+        std::string MenoHraca(int hrac, std::string *ptr_meno1,std::string *ptr_meno2)
+        {
+            switch(hrac)
+            {
+                case 1: return *ptr_meno1; break;
+                case 2: return *ptr_meno2; break;
+            }
+            return 0;
+        }
 
-		void WriteSemi()
-		{
-			file << ";" ;
-		}
 
-		void CloseFile()
-		{
-			file.close();
-		}
+	private:
+        void NaplnZivoty(int *pz, IntStack *PZ)
+        {
+            int i;
+
+            for(i = 0;  i < *pz + 1; i++)
+            {
+                PZ->Push(i);
+            }
+
+        }
+
+        void NaplnPrvky(int *pp, IntStack *PP, int* dInt, int *hInt )
+        {
+
+            using namespace std;
+            int i,c;
+            string temp;
+            c = 0;
+
+
+            for(i = 1; i < *pp + 1; i++ )
+            {
+                do
+                {
+                    cout << "Zadajte prvok č." << i << ": ";
+                    cin >> temp;
+                    // Kontrola intervalu
+                    c = SkontrolujInterval(temp, dInt, hInt);
+
+                }
+                while(c == 0);
+
+                PP->Push(stoi(temp));
+
+            }
+        }
+
 
 };
 
@@ -292,7 +283,7 @@ class Hrac
             file.close();
             return value;
 
-            file.close();
+
 
         }
 
@@ -376,12 +367,6 @@ class Hrac
 
 };
 
-/* Trieda na pracu s volbou Load */
-class ChoseLoad{
-	public:
-
-	private:
-};
 
 class ClearScreen
 {
@@ -401,8 +386,7 @@ class ClearScreen
 // Funkcia na stlacenie ENTER // 2 hodiny zabite s picovinou
 void WaitForEnter()
 {
-    char enter;
-    enter = std::cin.get();
+    std::cin.get();
     std::cin.ignore();
 }
 
@@ -421,18 +405,22 @@ int main()
     Hrac Hrac;
 
    	IntStack PZ1; // Pocet zivotov hraca cislo 1
-   	IntStack PP1; // Stack hraca cislo 1
-   	IntStack PZ2;
-   	IntStack PP2;
+   	IntStack *ptr_PZ1;
 
-    IntStack *ptr_PZ1;
-    ptr_PZ1 = &PZ1;
+   	IntStack PP1; // Prvky hraca 1
+   	IntStack *ptr_PP1;
+
+   	IntStack PZ2; // Pocet zivotov hraca cislo 2
     IntStack *ptr_PZ2;
-    ptr_PZ2 = &PZ2;
-    IntStack *ptr_PP1;
-    ptr_PP1 = &PP1;
+
+   	IntStack PP2; // Prvky hraca 2
     IntStack *ptr_PP2;
+
+
+    ptr_PP1 = &PP1;
     ptr_PP2 = &PP2;
+    ptr_PZ1 = &PZ1;
+    ptr_PZ2 = &PZ2;
 
     do
     {
@@ -448,42 +436,104 @@ int main()
     if (Volba == "New")
     {
 
-        // Zadavanie novych parametrov hry
+        int koniec, hra, hrac, count_p1, count_p2, data, pz, pp, dInt, hInt;
+        string pokus, name1, name2, tmp_name;
 
-      /*  New.SetNewData();
+
+        int *ptr_pz; int *ptr_dInt;int *ptr_hInt; int *ptr_pp;
+        ptr_pz = &pz; ptr_pp = &pp;
+        ptr_dInt = &dInt; ptr_hInt = &hInt;
+
+        string *ptr_name1; string *ptr_name2;
+        ptr_name1 = &name1; ptr_name2 = &name2;
+
+
+
+        hra = 1; // Indikuje prve kolo
+        int *ptr_count_p1; // pocet prvkov hrac1
+        int *ptr_count_p2; // pocet prvkov hrac 2
+
+        ptr_count_p1 = &count_p1;
+        ptr_count_p2 = &count_p2;
+
+        New.SetNewData(ptr_pz, ptr_pp, ptr_dInt,ptr_hInt);
+        count_p1 = *ptr_pp;count_p2 = *ptr_pp; // Nastav pocet prvkov hracom
+
+
         CS.clear_screen();
 
-        cout << "Zadanie udajov hraca c.1" << endl;
-        Hrac.NacitajParametre();
-        New.SetNewPlayer();
+        New.SetNewPlayer(ptr_pz, ptr_pp, ptr_dInt,ptr_hInt, ptr_PZ1,ptr_PP1, ptr_name1, 1);
 
         CS.clear_screen();
 
-        cout << "Zadanie udajov hraca c.2" << endl;
-        Hrac.NacitajParametre();
-        New.SetNewPlayer();
-*/
+        New.SetNewPlayer(ptr_pz, ptr_pp, ptr_dInt,ptr_hInt, ptr_PZ2,ptr_PP2, ptr_name2, 2);
 
 
 
-        /* Naplnenie udajov do stackov zo suboru - zivoty*/
-        int pz; /* Pocet zivotov */
-        pz = Hrac.KolkoPZ();
-
-        /* Napln zivot Hrac 1 */
-        Hrac.NaplnZivoty(pz, ptr_PZ1);
-        /* Napln zivot Hrac 2 */
-        Hrac.NaplnZivoty(pz, ptr_PZ2);
-
-        /* Naplnenie udajov do stackov zo suboru  - prvky*/
-
-        /* Napln stack Hrac 1 */
-        Hrac.NaplnStack(1, ptr_PP1);
-
-        /* Napln stack Hrac 2*/
-        Hrac.NaplnStack(2, ptr_PP2);
+        CS.clear_screen();
 
 
+        koniec = 0; hrac = 1;
+        while(koniec == 0)
+        {
+
+            tmp_name = New.MenoHraca(hrac, ptr_name1, ptr_name2);
+            cout << "Hada hrac c." << hrac << " - " << tmp_name << endl;
+            cout << "PZ_ME=";if(hrac == 1){cout << PZ1.Top();} else if (cout << PZ2.Top());
+            cout << " PZ_OPP="; if(hrac == 1){ cout << PZ2.Top();}else if (cout << PZ1.Top()); cout << endl;
+            cout << "PP_ME=";if(hrac == 1){cout << count_p1;} else if (cout << count_p2);
+            cout << " PP_OPP=";if(hrac == 1){cout << count_p2;} else if (cout << count_p1); cout << endl;
+
+            // Hadanie
+            pz = 0;
+            do
+            {
+                cout << "Hadajte prvok na vrchu protivnikovho zasobnika: ";
+                cin >> pokus;
+                // Kontrola intervalu
+                pz = New.SkontrolujInterval(pokus, ptr_dInt, ptr_hInt);
+            }
+            while(pz == 0);
+
+            data = stoi(pokus);
+
+            // Vyhodnotenie tipu
+            if(hrac == 1)
+                {
+                   Hrac.VyhodnotTah(data,hra,ptr_count_p2,ptr_PP2,ptr_PZ1);
+                }
+
+            if(hrac == 2)
+                {
+                    Hrac.VyhodnotTah(data,hra,ptr_count_p1,ptr_PP1,ptr_PZ2);
+                    if(hra = 1){hra = 0;} // Ukonci prve kolo
+                }
+
+            // Zobrazenie stavu po hadani
+            cout << "PZ_ME=";if(hrac == 1){cout << PZ1.Top();} else if (cout << PZ2.Top());
+            cout << " PZ_OPP="; if(hrac == 1){ cout << PZ2.Top();}else if (cout << PZ1.Top()); cout << endl;
+            cout << "PP_ME=";if(hrac == 1){cout << count_p1;} else if (cout << count_p2);
+            cout << " PP_OPP=";if(hrac == 1){cout << count_p2;} else if (cout << count_p1); cout << endl;
+
+            // Cakaj na ENTER
+            cout << "Stlacte enter a prenechajte hru hracovi c.: " ;
+            if(hrac == 1){cout << "2";} else{cout << "1";}
+
+            WaitForEnter();
+
+            // Vymaz obrazovku
+            CS.clear_screen();
+
+
+            // Prehod hracov
+            switch(hrac)
+            {
+                case 2: hrac = 1; break;
+                case 1: hrac = 2; break;
+            }
+
+
+        }
 
     }
 
@@ -550,7 +600,6 @@ int main()
                 {
                     Hrac.VyhodnotTah(data,hra,ptr_count_p1,ptr_PP1,ptr_PZ2);
                     if(hra = 1){hra = 0;} // Ukonci prve kolo
-
                 }
 
             // Zobrazenie stavu po hadani
@@ -579,8 +628,6 @@ int main()
 
         }
 
-
-
     }
 
     else if (Volba  == "Exit")
@@ -588,8 +635,6 @@ int main()
         cout << "Vybral si si Exit" << endl;
         return 0;
     }
-
-
 
     return 0;
 }

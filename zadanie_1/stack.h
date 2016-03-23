@@ -15,14 +15,12 @@ class IntStack
 {
     public:
 
-        bool IsEmpty() const;
-        //bool IsFull() const;
+
         void Push(int n);
         void Pop();
-        int Top() const;
+        int  Top() const;
         ~IntStack();
-        IntStack(const IntStack& otherStk);
-        IntStack();
+
 
 
     private:

@@ -1,15 +1,5 @@
-#include "stack.h"
 #include "stddef.h"
-
-IntStack::IntStack()
-{
-	top = NULL;
-}
-
-bool IntStack::IsEmpty() const
-{
-	return (top == NULL);
-}
+#include "stack.h"
 
 void IntStack::Push(int newItem)
 {
@@ -38,7 +28,7 @@ IntStack::~IntStack()
 {
 	// Destructor
 
-	NodeType * tempPtr;
+	NodeType *tempPtr;
 	while(top != NULL)
 	{
 		tempPtr = top;
